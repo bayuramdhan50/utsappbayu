@@ -103,31 +103,81 @@ class _TimeConversionPageState extends State<TimeConversionPage> {
         title: Text('Konversi Waktu'),
         backgroundColor: widget.color,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildTextField('Masukkan waktu', _inputController),
-            SizedBox(height: 16),
-            _buildDropdown('Unit Sumber', _selectedFromUnit, (newValue) {
-              setState(() {
-                _selectedFromUnit = newValue!;
-              });
-            }),
-            SizedBox(height: 16),
-            _buildSwapButton(),
-            SizedBox(height: 16),
-            _buildDropdown('Unit Tujuan', _selectedToUnit, (newValue) {
-              setState(() {
-                _selectedToUnit = newValue!;
-              });
-            }),
-            SizedBox(height: 16),
-            _buildConvertButton(),
-            SizedBox(height: 16),
-            _buildConvertedValue(),
-          ],
-        ),
+      body: Stack(
+        children: [
+          Container(color: widget.color),
+          Container(
+            margin: EdgeInsets.only(top: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30),
+                topRight: Radius.circular(30),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildTextField('Masukkan waktu', _inputController),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: _buildDropdown(
+                                'Unit Sumber', _selectedFromUnit, (newValue) {
+                              setState(() {
+                                _selectedFromUnit = newValue!;
+                                _convertTime();
+                              });
+                            }),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.swap_horiz,
+                                color: Colors.blueAccent),
+                            onPressed: _swapUnits,
+                          ),
+                          Expanded(
+                            child: _buildDropdown(
+                                'Unit Tujuan', _selectedToUnit, (newValue) {
+                              setState(() {
+                                _selectedToUnit = newValue!;
+                                _convertTime();
+                              });
+                            }),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+                      _buildConvertButton(),
+                      SizedBox(height: 20),
+                      Divider(color: Colors.grey),
+                      SizedBox(height: 10),
+                      _buildConvertedValue(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -138,7 +188,9 @@ class _TimeConversionPageState extends State<TimeConversionPage> {
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         filled: true,
         fillColor: Colors.grey[200],
       ),
@@ -150,36 +202,19 @@ class _TimeConversionPageState extends State<TimeConversionPage> {
     return DropdownButton<String>(
       value: selectedValue,
       onChanged: onChanged,
-      items: _units.map((unit) {
-        return DropdownMenuItem(
-          value: unit,
-          child: Text(unit),
-        );
-      }).toList(),
+      items: _units
+          .map((unit) => DropdownMenuItem(value: unit, child: Text(unit)))
+          .toList(),
       isExpanded: true,
       underline: SizedBox(),
-    );
-  }
-
-  Widget _buildSwapButton() {
-    return ElevatedButton(
-      onPressed: _swapUnits,
-      child: Icon(Icons.swap_horiz),
-      style: ElevatedButton.styleFrom(
-        shape: CircleBorder(),
-        padding: EdgeInsets.all(20),
-        backgroundColor: Colors.green,
-      ),
     );
   }
 
   Widget _buildConvertButton() {
     return ElevatedButton(
       onPressed: _convertTime,
-      child: Text(
-        'Konversi',
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-      ),
+      child: Text('Konversi',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -191,7 +226,8 @@ class _TimeConversionPageState extends State<TimeConversionPage> {
   Widget _buildConvertedValue() {
     return Text(
       _convertedValue,
-      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      style: TextStyle(fontSize: 24, color: Colors.blueAccent),
+      textAlign: TextAlign.center,
     );
   }
 }
